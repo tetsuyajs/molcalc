@@ -1,0 +1,99 @@
+・化合物情報DB入力
+・ファイル読み込みプログレスバー表示
+・ロガー
+・データベースアクセサー
+・文字コード処理
+・エスケイプ(\%"' \n \r \t \s)
+
+
+
+class DBConnector
+  slip_backup()
+  slip_restore(number)
+  dump_backup()
+  dump_restore()
+  get_backupdata()
+  
+  get_info() -> dict db_data
+  all_clear() -> boolean success
+  execute_sql_file(str sql_file_path) -> boolean success
+  
+  slip_backupable_max = 10
+  
+  is_backup = False | True
+  backup_date = date
+  backup_number = int
+
+  class DBTableConnector
+    create_record(dict data | array data, str flag='') -> int primary_key
+    # create_record(sql, array[])
+    # create_records(sql, array[][])
+    read_record(int start=0, int end=0, int number=0, str sort_type='asc') -> array data // Array[OrderedDict{}, OrderedDict{}]
+    update_record(int id, dict data | array data, str flag='') -> boolean success
+    delete_record(int id, flg='') -> boolean success
+    execute_sql(sql, array[])
+    execute_sql_file(sql_file, array[])
+    
+    get_info() -> dict table_data
+    reset_seq_to_max() -> int new_max_seq
+    
+    search(dict query, int start, int end, int number, str sort_type='asc')
+    simirarity_search(str key, obj value, int start, int end, int number, str sort_type='asc')
+    
+    
+    
+    
+    
+
+pgconn.py pg_conn(connect_setting.json)
+execsql.py exc_sql(sql_file.sql)
+・もうカーソルまで返す必要ないのではないか。
+
+
+
+クラッダー(CRUDer)
+・データベースへ登録(Create)、取得(Read)、更新(Update)、削除(Delete)を行うウェブアプリケーションライブラリ。
+・AngularJSで構成するクライアント部はデータを入力し、メソッドを決めるためのユーザーインターフェースを提供する。
+・Djangoで構成するサーバー部はユーザーアクセスをコントロールし、またデータベースへデータの登録・更新などを行う。。
+・データベースはPostgreSQLによって構成。
+クルッパー(CRupper)
+・クラッダーではデータベースへの登録は1つずつしかできないが、これをCSVなどのデータを読み込んで一度に大量に登録するウェブアプリケーション。
+・また、逆にデータベースの中身をファイルにして一度に大量のデータとしてダウンロードする。
+JavaScript(クライアント側):
+- アップローダー機能
+- アップロードされたファイル一覧
+- アップロードされたファイルの状況表示(データ登録進行状況)
+- アップロードされたファイルに対する削除実行
+- アップロードされたファイルを使ってデータ登録実行
+PHP(サーバー側):
+- ファイルアップロードの受取処理
+- アップロードされたファイルの状況ファイル作成
+- 状況ファイルなどを読み込んでクライアントに状況を返す
+- アップロードされたファイルを使ってデータベース追加機能実行
+- アップロードされたファイルの削除処理
+Python(サーバー側):
+- ファイルを読み込んでDBに登録
+- 読み込み、登録中に状況を状況ファイルに書き出す
+- エラーになってもファイルにその旨を書き出して終える
+
+
+マクロ
+- カッコ内とカッコ外を入れ替える
+- 区切り文字の前と後ろを入れ替える
+
+
+
+## 決め事
+- データベース構築のメインはSQLスクリプトであり、それ以外のプログラミング言語は補助的な役割とする。
+- PostgreSQLのエクステンションに基本的な拡張関数を登録しておき、全てプリペアードステートメントで済ませる。
+- データベースへ登録する方法はサーバー上で行うケースとウェブを介して行うケースの2通り用意する。
+- サーバー上で行うケースは基本SQLスクリプトを中心とし、データを渡すためだけにPythonを使用する。
+- ウェブを介して行うケースは、JavaScriptとSQLによる処理を目指し、PHPやPythonはJavaScriptとSQLの橋渡しのみ行う。
+- ウェブを介する場合、CSVやそれに準ずるテキストデータのブラウザ上への読み込みか、エクセルの中身のコピペを実装。
+- レコードは全て存在フラグ(デフォルトはTrueで、レコードを削除する場合はこれをFalseにすることで削除とし、レコードそのものを削除してはいけない)=isexistを持つ。
+
+- 参考
+AngularJS入門 日本語マニュアル -Excelデータをコピペだけで反映させる- - http://angular-js.net/excel-paste/
+
+
+テスト

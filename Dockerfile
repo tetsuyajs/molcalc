@@ -2,7 +2,7 @@ FROM centos:7
 
 MAINTAINER yamamoto@itmol.com
 
-
+ENV LANG=en_US.UTF-8
 
 
 # --------------------------------------
@@ -86,3 +86,6 @@ USER root
 
 # AutoDockインストール予定
 
+
+
+# docker run -it --name molcalc_0.1 -v c:/Users/Jingring/git/molcalc/volumes:/home molcalc:0.1 bash
