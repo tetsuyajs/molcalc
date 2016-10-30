@@ -13,8 +13,9 @@ RUN set -x \
     &&  yum install -y gcc-c++ boost-devel make cmake epel-release unzip tar
 
 RUN yum install -y python-devel python-pillow python-pip \
-    && pip install pip --upgrade \
-    && pip install numpy scipy
+    && yum clean all \
+    && pip install pip --upgrade --no-cache-dir \
+    && pip install --no-cache-dir numpy scipy
 
 ENV RDBASE /usr/local/RDKit_2016_03_1
 ENV LD_LIBRARY_PATH /lib:$RDBASE/lib
@@ -58,6 +59,7 @@ ENV PATH $PATH:$POSTGRES_HOME/bin
 ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$PGLIB
 
 RUN yum install -y bison flex readline-devel zlib-devel gettext \
+    && yum clean all \
     && mkdir /usr/local/pgsql \
     && useradd $POSTGRES_USER \
     && chown $POSTGRES_USER:$POSTGRES_USER /usr/local/pgsql
@@ -71,14 +73,11 @@ RUN cd /tmp/postgresql-9.5.4 \
         --with-python CC='gcc' CFLAGS='-O3' CXX='gcc' CXXFLAGS='-O3' \
     && gmake \
     && gmake install \
-    && mkdir /usr/local/pgsql/data
+    && mkdir /usr/local/pgsql/data \
+    && rm -rf /tmp/postgresql-9.5.4
 
 RUN $POSTGRES_HOME/bin/initdb -D $PGDATA -E UTF8 -W -U postgres --no-locale
 
-RUN pg_ctl start \
-    && sleep 5s
-
-USER root
 
 # PostgreSQLインストール終了
 

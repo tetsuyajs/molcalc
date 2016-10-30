@@ -1,0 +1,80 @@
+FROM centos:7
+
+MAINTAINER yamamoto@itmol.com
+
+ENV LANG=en_US.UTF-8
+
+
+# --------------------------------------
+# RDKitインストール開始
+
+ENV RDBASE /usr/local/RDKit_2016_03_1
+ENV LD_LIBRARY_PATH /lib:$RDBASE/lib
+ENV PYTHONPATH $RDBASE
+ADD ./softwares/RDKit_2016_03_1.tgz /usr/local/
+ADD ./softwares/INCHI-1-API.ZIP /tmp
+
+RUN set -x \
+    && yum install -y gcc-c++ boost-devel make cmake epel-release unzip tar \
+    && yum install -y python-devel python-pillow python-pip \
+    && yum clean all \
+    && pip install pip --upgrade --no-cache-dir \
+    && pip install --no-cache-dir numpy scipy \
+    && mv /usr/local/rdkit-Release_2016_03_1 /usr/local/RDKit_2016_03_1 \
+    && mkdir $RDBASE/External/INCHI-API/src \
+    && unzip /tmp/INCHI-1-API.ZIP -d /tmp \
+    && cp /tmp/INCHI-1-API/INCHI_API/inchi_dll/* $RDBASE/External/INCHI-API/src \
+    && rm -rf /tmp/INCHI-1-API* \
+    && mkdir $RDBASE/build \
+    && cd $RDBASE/build \
+    && cmake -DRDK_BUILD_INCHI_SUPPORT=ON -DBOOST_ROOT=/usr/lib64 -D PYTHON_EXECUTABLE=/usr/bin/python .. \
+    && make \
+    && make install \
+    && rm -rf $RDBASE/Code $RDBASE/build \
+    && yum remove -y gcc-c++ boost-devel epel-release python-devel
+
+# RDKitインストール終了
+# --------------------------------------
+
+# --------------------------------------
+# PostgreSQLインストール開始
+
+ENV POSTGRES_USER postgres
+ENV POSTGRES_PASSWORD postgres
+ENV POSTGRES_HOME /usr/local/pgsql
+ENV PGLIB $POSTGRES_HOME/lib
+ENV PGDATA $POSTGRES_HOME/data
+ENV PATH $PATH:$POSTGRES_HOME/bin
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$PGLIB
+
+RUN yum install -y bison flex readline-devel zlib-devel gettext make python-devel \
+    && yum clean all \
+    && mkdir /usr/local/pgsql \
+    && useradd $POSTGRES_USER \
+    && chown $POSTGRES_USER:$POSTGRES_USER /usr/local/pgsql
+
+USER $POSTGRES_USER
+
+ADD ./softwares/postgresql-9.5.4.tar.gz /tmp
+
+RUN cd /tmp/postgresql-9.5.4 \
+    && ./configure --prefix=/usr/local/pgsql --enable-nls --disable-thread-safety \
+        --with-python CC='gcc' CFLAGS='-O3' CXX='gcc' CXXFLAGS='-O3' \
+    && gmake \
+    && gmake install \
+    && mkdir /usr/local/pgsql/data \
+    && rm -rf /tmp/postgresql-9.5.4
+
+RUN $POSTGRES_HOME/bin/initdb -D $PGDATA -E UTF8 -W -U postgres --no-locale
+
+
+# PostgreSQLインストール終了
+# --------------------------------------
+
+# PyMolインストール予定
+
+# AutoDockインストール予定
+
+
+# docker build -t molcalc/postgresql:0.1 -f Dockerfile-postgresql .
+# docker run -it --name molcalc_0.1 -v c:/Users/Jingring/git/molcalc/volumes:/home molcalc/postgresql:0.1 bash

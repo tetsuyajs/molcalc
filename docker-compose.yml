@@ -1,0 +1,4 @@
+rdkit-pgsql:
+  build:
+    context: .
+    dockerfile: Dockerfile-postgresql
