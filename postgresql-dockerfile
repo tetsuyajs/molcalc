@@ -74,6 +74,8 @@ RUN cd /tmp/postgresql-9.5.4 \
 
 EXPOSE 5432
 
+USER root
+
 ADD ./postgresql-entrypoint.sh /
 
 ENTRYPOINT ["/postgresql-entrypoint.sh"]
@@ -86,7 +88,5 @@ ENTRYPOINT ["/postgresql-entrypoint.sh"]
 # AutoDockインストール予定
 
 
-# docker build -t molcalc/postgresql:0.1 -f Dockerfile-postgresql .
-# docker run -d --name postgres -p 5433:5432 -v C:/Users/Jingring/git/molcalc/volumes/pgdata:/usr/local/pgsql/data molcalc/postgresql:0.1
-
-
+# docker run -d --name postgres -p 5433:5432 -v C:/Users/Jingring/git/molcalc/volumes/pgdata:/usr/local/pgsql/data molcalc/postgresql:0.1# docker build -t molcalc/postgresql:0.2 -f postgresql-dockerfile .
+# docker run -it --name postgres -p 5433:5432 -v C:\Users\Jingring\git\molcalc\volumes\pgdata:/usr/local/pgsql/data molcalc/postgresql:0.2 bash
