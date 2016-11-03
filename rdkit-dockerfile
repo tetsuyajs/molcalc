@@ -36,5 +36,5 @@ RUN set -x \
 # RDKitインストール終了
 # --------------------------------------
 
-# docker build -t molcalc/rdkit:0.1 -f Dockerfile-rdkit .
-# docker run -it --name molcalc_0.1 -v c:/Users/Jingring/git/molcalc/volumes:/home molcalc/rdkit:0.1 bash
+# docker build -t tetsuyajs/rdkit:0.1 -f rdkit-dockerfile .
+# docker run -it --name rdkit1 --volumes-from rdkit1-data1 tetsuyajs/rdkit:0.1 bash

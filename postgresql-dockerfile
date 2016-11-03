@@ -46,6 +46,7 @@ ENV PGLIB $POSTGRES_HOME/lib
 ENV PGDATA $POSTGRES_HOME/data
 ENV PATH $PATH:$POSTGRES_HOME/bin
 ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$PGLIB
+ENV PGCONF_HOSTDIR ./postgresql-configs
 ADD ./softwares/postgresql-9.5.4.tar.gz /tmp
 
 RUN yum install -y bison flex readline-devel zlib-devel gettext make python-devel \
@@ -63,30 +64,47 @@ RUN cd /tmp/postgresql-9.5.4 \
     && gmake \
     && gmake install \
     && mkdir $PGDATA \
-#     && $POSTGRES_HOME/bin/initdb -D $PGDATA -E UTF8 -W -U postgres --no-locale \
     && rm -rf /tmp/postgresql-9.5.4
 
-# RUN pg_ctl start \
-#     && sleep 10s \
-#     && psql -c "ALTER USER $POSTGRES_USER WITH PASSWORD '$POSTGRES_PASSWORD'" \
-#     && pg_ctl stop \
-#     && sleep 10s
+ADD ./postgresql-entrypoint.sh /
+ADD $PGCONF_HOSTDIR /tmp
+
+RUN chown $POSTGRES_USER:$POSTGRES_USER /tmp/postgresql-configs/postgresql.conf \
+    && chown $POSTGRES_USER:$POSTGRES_USER /tmp/postgresql-configs/pg_hba.conf
 
 EXPOSE 5432
-
-USER root
-
-ADD ./postgresql-entrypoint.sh /
 
 ENTRYPOINT ["/postgresql-entrypoint.sh"]
 
 # PostgreSQLインストール終了
 # --------------------------------------
 
-# PyMolインストール予定
 
-# AutoDockインストール予定
+# 必要なファイル
+# postgresql-dockerfile
+# configs/postgresql_1.conf
+# configs/pg_hba_1.conf
 
+# イメージを構築する
+# `docker build -t tetsuyajs/postgresql:0.1 -f postgresql-dockerfile .`
 
-# docker run -d --name postgres -p 5433:5432 -v C:/Users/Jingring/git/molcalc/volumes/pgdata:/usr/local/pgsql/data molcalc/postgresql:0.1# docker build -t molcalc/postgresql:0.2 -f postgresql-dockerfile .
-# docker run -it --name postgres -p 5433:5432 -v C:\Users\Jingring\git\molcalc\volumes\pgdata:/usr/local/pgsql/data molcalc/postgresql:0.2 bash
+# コンテナをフォアグラウンドで起動
+# `docker run -it --name pgsql1 -p 5434:5432 --volumes-from testvol tetsuyajs/postgresql:0.1 bash`
+# (何も出来ないのでCtrl+P Ctrl+Qで抜けること)
+# (Ctrl+Cをするとコンテナも終了しつつ抜ける)
+
+# コンテナをバックグラウンドで起動
+# `docker run -d --name pgsql1 -p 5434:5432 --volumes-from testvol tetsuyajs/postgresql:0.1`
+
+# コンテナにbashシェルで接続
+# docker exec -it pgsql1 bash
+# (docker attachで入るとフォアグラウンドで起動しているサーバープロセスの中で止まる)
+
+# コンテナを終了させる
+# docker stop pgsql1
+
+# コンテナを削除する
+# docker rm pgsql1
+
+# イメージを削除する
+# docker rmi tetsuyajs/postgresql:0.1
