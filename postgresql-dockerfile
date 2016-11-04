@@ -46,7 +46,7 @@ ENV PGLIB $POSTGRES_HOME/lib
 ENV PGDATA $POSTGRES_HOME/data
 ENV PATH $PATH:$POSTGRES_HOME/bin
 ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$PGLIB
-ENV PGCONF_HOSTDIR ./postgresql-configs
+ENV PGCONF_HOSTDIR ./postgresql-config
 ADD ./softwares/postgresql-9.5.4.tar.gz /tmp
 
 RUN yum install -y bison flex readline-devel zlib-devel gettext make python-devel \
@@ -69,8 +69,14 @@ RUN cd /tmp/postgresql-9.5.4 \
 ADD ./postgresql-entrypoint.sh /
 ADD $PGCONF_HOSTDIR /tmp
 
-RUN chown $POSTGRES_USER:$POSTGRES_USER /tmp/postgresql-configs/postgresql.conf \
-    && chown $POSTGRES_USER:$POSTGRES_USER /tmp/postgresql-configs/pg_hba.conf
+USER root
+
+RUN chown $POSTGRES_USER:$POSTGRES_USER /tmp/postgresql.conf \
+    && chown $POSTGRES_USER:$POSTGRES_USER /tmp/pg_hba.conf \
+    && chown $POSTGRES_USER:$POSTGRES_USER /postgresql-entrypoint.sh \
+    && chmod +x /postgresql-entrypoint.sh
+
+USER $POSTGRES_USER
 
 EXPOSE 5432
 
