@@ -1,4 +1,29 @@
-rdkit-pgsql:
-  build:
-    context: .
-    dockerfile: Dockerfile-postgresql
+pgsql-data1:
+  image: busybox:buildroot-2014.02
+  volumes: 
+    - /usr/local/pgsql/data
+
+mysql-data1:
+  image: busybox:buildroot-2014.02
+  volumes:
+    - /var/lib/mysql
+
+
+pgsql-serv1:
+  image: tetsuyajs/postgresql:9.5-rdkit_build01
+  ports:
+    - "5433:5432"
+  volumes_from:
+    - pgsql-data1
+
+mysql-serv1:
+  image: mysql:5.6.24
+  environment:
+    MYSQL_ROOT_PASSWORD: yourSecurePasswordHere
+  ports:
+    - "3306:3306"
+  volumes_from:
+    - mysql-data1
+
+
+
