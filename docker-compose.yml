@@ -8,6 +8,11 @@ mysql-data1:
   volumes:
     - /var/lib/mysql
 
+httpd-data1:
+  image: busybox:buildroot-2014.02
+  volumes:
+    - 
+
 
 pgsql-serv1:
   image: tetsuyajs/postgresql:9.5-rdkit_build01
